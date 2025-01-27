@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Generation Dashboard</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f4f8;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 900px;
+            margin: 20px;
+        }
+
+        h1 {
+            color: #00796b;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 28px;
+            letter-spacing: 1px;
+        }
+
+        .tab {
+            display: inline-block;
+            cursor: pointer;
+            padding: 15px 25px;
+            background: #00796b;
+            color: #ffffff;
+            margin-right: 5px;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+            transition: background-color 0.3s ease;
+        }
+
+        .tab.active {
+            background: #004d40;
+            font-weight: bold;
+        }
+
+        .tab:hover {
+            background: #004d40;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 25px;
+            border: 2px solid #00796b;
+            border-radius: 0 0 12px 12px;
+            background: #ffffff;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 16px;
+            color: #004d40;
+            font-weight: 500;
+        }
+
+        input[type="file"], input[type="text"], input[type="date"], button {
+            border: 1px solid #004d40;
+            border-radius: 6px;
+            padding: 10px;
+            font-size: 16px;
+            width: 100%;
+            margin-bottom: 15px;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="file"] {
+            padding: 10px;
+        }
+
+        input[type="text"]:focus, input[type="date"]:focus {
+            outline: none;
+            border-color: #00796b;
+        }
+
+        button {
+            background-color: #00796b;
+            color: #ffffff;
+            border: none;
+            cursor: pointer;
+            padding: 12px;
+            font-size: 18px;
+            width: 100%;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #004d40;
+        }
+
+        .file-list {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #004d40;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        /* Date fields side by side
+        .date-group {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .date-group label {
+            display: inline-block;
+        }
+        
+        .date-group input[type="date"] {
+            width: 100%;
+        } */
+        .date-group {
+        display: flex;
+        justify-content: flex-start; /* Align items to the start */
+        gap: 50px;
+        }
+
+        .date-group .form-group {
+            margin: 10; /* Remove all margin */
+            padding: 0; /* Remove padding if any */
+        }
+
+        .date-group .form-group input[type="date"] {
+            padding: 8px; /* Adjust padding for the date fields */
+            margin: 15; /* Ensure no margin */
+            width: 100%; /* Full width */
+        }
+
+        .date-group .form-group:not(:last-child) {
+            margin-right: 5px; /* Add a small margin only to the right of the first input */
+        }
+        /* Responsive design for smaller screens */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 22px;
+            }
+
+            .tab {
+                padding: 10px 15px;
+                font-size: 14px;
+            }
+
+            .date-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Upload and Process Files</h1>
+
+        <div class="tab" id="tab1">Amazon B2C</div>
+
+        <div class="tab-content" id="content1">
+            <form action="/processAmzDateRangeCsv" method="post" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="file">Choose File:</label>
+                    <input type="file" id="file" name="file" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="strOrg">Organization:</label>
+                    <input type="text" id="strOrg" name="strOrg" value="USA" required>
+                </div>
+
+                <!-- Start Date and End Date side by side -->
+                <div class="date-group">
+                    <div class="form-group">
+                        <label for="startdate">Start Date:</label>
+                        <input type="date" id="startdate" name="startdate" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="enddate">End Date:</label>
+                        <input type="date" id="enddate" name="enddate" required>
+                    </div>
+                </div>
+
+                <button type="submit">Process File</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function () {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(c => c.classList.remove('active'));
+
+                    tab.classList.add('active');
+                    document.getElementById(`content${tab.id.slice(-1)}`).classList.add('active');
+                });
+            });
+
+            // Activate the first tab by default
+            tabs[0].classList.add('active');
+            tabContents[0].classList.add('active');
+        });
+
+        document.getElementById('input_folder').addEventListener('change', function(event) {
+            const files = event.target.files;
+            const fileList = document.getElementById('fileList');
+            if (files.length > 0) {
+                let fileNames = [];
+                for (let i = 0; i < files.length; i++) {
+                    fileNames.push(files[i].webkitRelativePath || files[i].name);
+                }
+                fileList.innerHTML = '<strong>Selected files:</strong><br>' + fileNames.join('<br>');
+            }
+        });
+    </script>
+</body>
+</html>

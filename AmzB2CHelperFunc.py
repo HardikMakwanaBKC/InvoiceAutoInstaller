@@ -628,7 +628,14 @@ class CAmzB2CHelperFunc:
         """
         # Check Organization (Mexico, Canada, USA)
         if strOrg.lower() == 'mexico':
-            df = pd.read_csv(strDateRangeFilePath, skiprows=7, parse_dates=['fecha/hora'])
+            # Custom date parser function
+            def custom_date_parser(date_str):
+                try:
+                    # Parse the date with the localized format
+                    return datetime.strptime(date_str, "%d %b %Y %I:%M:%S %p %Z%z")
+                except Exception:
+                    return pd.NaT  # Return NaT for invalid dates
+            df = pd.read_csv(strDateRangeFilePath, skiprows=7, parse_dates=['fecha/hora'], date_parser = custom_date_parser)
 
             df.rename(columns={'fecha/hora':'date/time', 'Id. de liquidación':'settlement id', 'tipo':'type', 'Id. del pedido':'order id', 'sku':'sku', 'descripción':'description', 'cantidad':'quantity', 'marketplace':'marketplace', 'cumplimiento':'fulfillment', 'ciudad del pedido':'order city', 'estado del pedido':'order state', 'código postal del pedido':'order postal', 'modelo de recaudación de impuestos':'tax collection model', 'ventas de productos':'product sales', 'impuesto de ventas de productos':'product sales tax', 'créditos de envío':'shipping credits', 'impuesto de abono de envío':'shipping credits tax', 'créditos por envoltorio de regalo':'gift wrap credits', 'impuesto de créditos de envoltura':'giftwrap credits tax', 'Tarifa reglamentaria':'Regulatory Fee', 'Impuesto sobre tarifa reglamentaria':'Tax On Regulatory Fee', 'descuentos promocionales':'promotional rebates', 'impuesto de reembolsos promocionales':'promotional rebates tax', 'impuesto de retenciones en la plataforma':'marketplace withheld tax', 'tarifas de venta':'selling fees', 'tarifas fba':'fba fees', 'tarifas de otra transacción':'other transaction fees', 'otro':'other', 'total':'total'}, inplace=True)
         else:

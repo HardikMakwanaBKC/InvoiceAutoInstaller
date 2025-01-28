@@ -1,91 +1,54 @@
-# import logging
+
 # import os
+# import logging
 # from datetime import datetime
 
 # class CLogUtility:
 #     def __init__(self):
-#         # Initialize log file path
-#         self.log_file = None
-
-#         # Set up logging
 #         self.setup_logging()
 
-#     def setup_logging(self):
-#         # Create a directory for logs if it doesn't exist
-#         log_dir = "logs"
+#     def setup_logging(self, log_dir="logs", log_level=logging.INFO):
+#         """
+#         Set up logging configuration.
+        
+#         Args:
+#             log_dir (str): Directory path where log files will be saved.
+#             log_level (int): Logging level. Default is logging.INFO.
+#         """
 #         if not os.path.exists(log_dir):
 #             os.makedirs(log_dir)
 
-#         # Get today's date
-#         today_date = datetime.now().strftime('%Y-%m-%d')
+#         log_file = os.path.join(log_dir, f"log_{datetime.now().strftime('%Y-%m-%d')}.log")
 
-#         # Set log file path
-#         self.log_file = os.path.join(log_dir, f"{today_date}.log")
-
-#         # Create a logging file handler
-#         file_handler = logging.FileHandler(self.log_file)
-
-#         # Create a logging format
-#         formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-#         file_handler.setFormatter(formatter)
-
-#         # Set up logging level to INFO
-#         file_handler.setLevel(logging.INFO)
-
-#         # Add the file handler to the root logger
-#         logging.getLogger().addHandler(file_handler)
-
-#     def check_date_and_update_log_file(self):
-#         # Get today's date
-#         today_date = datetime.now().strftime('%Y-%m-%d')
-
-#         # Check if current log file is for today's date
-#         if not self.log_file.endswith(f"{today_date}.log"):
-#             # If not, set up logging again to create a new log file
-#             self.setup_logging()
-
-#     def logInfo(self, message):
-#         self.check_date_and_update_log_file()
-#         logging.info(message)
-
-#     def logWarning(self, message):
-#         self.check_date_and_update_log_file()
-#         logging.warning(message)
-
-#     def logError(self, message):
-#         self.check_date_and_update_log_file()
-#         logging.error(message)
-
-#     def logDebug(self, message):
-#         self.check_date_and_update_log_file()
-#         logging.debug(message)
-
-import os
+#         logging.basicConfig(level=log_level,
+#                             format='%(asctime)s - %(levelname)s - %(message)s',
+#                             datefmt='%Y-%m-%d %H:%M:%S',
+#                             filename=log_file,
+#                             filemode='a')
 import logging
-from datetime import datetime
+import sys
 
 class CLogUtility:
     def __init__(self):
+        self.logger = logging.getLogger("AppLogger")
+        self.logger.setLevel(logging.DEBUG)  # Adjust the level as needed
         self.setup_logging()
 
-    def setup_logging(self, log_dir="logs", log_level=logging.INFO):
-        """
-        Set up logging configuration.
-        
-        Args:
-            log_dir (str): Directory path where log files will be saved.
-            log_level (int): Logging level. Default is logging.INFO.
-        """
-        if not os.path.exists(log_dir):
-            os.makedirs(log_dir)
+    def setup_logging(self):
+        # Remove existing handlers
+        if self.logger.hasHandlers():
+            self.logger.handlers.clear()
 
-        log_file = os.path.join(log_dir, f"log_{datetime.now().strftime('%Y-%m-%d')}.log")
+        # Log to stdout instead of a file
+        console_handler = logging.StreamHandler(sys.stdout)
+        console_handler.setLevel(logging.DEBUG)  # Adjust the level as needed
 
-        logging.basicConfig(level=log_level,
-                            format='%(asctime)s - %(levelname)s - %(message)s',
-                            datefmt='%Y-%m-%d %H:%M:%S',
-                            filename=log_file,
-                            filemode='a')
+        formatter = logging.Formatter(
+            '%(asctime)s - %(levelname)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S'
+        )
+        console_handler.setFormatter(formatter)
+
+        self.logger.addHandler(console_handler)
 
     def logInfo(self, message):
         """
@@ -105,8 +68,8 @@ class CLogUtility:
         """
         logging.error(message)
 
-# # Example usage:
-# if __name__ == "__main__":
-#     setup_logging()
-#     log_info("This is an information message.")
-#     log_error("This is an error message.")
+# Example usage:
+if __name__ == "__main__":
+    log_util = CLogUtility()
+    log_util.setup_logging()
+    log_util.logInfo("This is an information message.")
